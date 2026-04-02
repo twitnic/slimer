@@ -10,15 +10,19 @@ class StubGeneratorTest extends TestCase
 {
     protected $temporaryDirectory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->temporaryDirectory = sys_get_temp_dir() . '/slimer-stub-' . uniqid('', true);
         mkdir($this->temporaryDirectory . '/stubs', 0777, true);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->deleteDirectory($this->temporaryDirectory);
+
+        parent::tearDown();
     }
 
     public function testStubGeneratorReplacesTokens()

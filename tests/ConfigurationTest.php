@@ -10,15 +10,19 @@ class ConfigurationTest extends TestCase
 {
     protected $temporaryDirectory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->temporaryDirectory = sys_get_temp_dir() . '/slimer-config-' . uniqid('', true);
         mkdir($this->temporaryDirectory, 0777, true);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->deleteDirectory($this->temporaryDirectory);
+
+        parent::tearDown();
     }
 
     public function testConfigurationIsLoadedFromDefaultLocation()
