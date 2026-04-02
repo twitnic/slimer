@@ -6,18 +6,17 @@
     "keywords": [
         "slim",
         "slim2",
-        "artisan",
         "console",
         "cli"
     ],
     "homepage": "https://github.com/twitnic/slimer",
     "authors": [
         {
-            "name": "twitnic"
+            "name": "Dominic Richter"
         }
     ],
     "require": {
-        "php": ">=5.6",
+        "php": ">=7.2",
         "slim/slim": "^2.6",
         "symfony/console": "^3.4 || ^4.4 || ^5.4 || ^6.4"
     },
