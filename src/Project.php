@@ -105,7 +105,12 @@ class Project
         }
 
         if (is_callable($bootstrap)) {
-            return $this->assertSlimApplication(call_user_func($bootstrap, $this), 'bootstrap callback');
+            return $this->assertSlimApplication(
+                $this->withBootstrapEnvironment(null, function () use ($bootstrap) {
+                    return call_user_func($bootstrap, $this);
+                }),
+                'bootstrap callback'
+            );
         }
 
         throw new RuntimeException('The "bootstrap" configuration value must be a file path or a callable.');
@@ -113,22 +118,23 @@ class Project
 
     protected function bootstrapFromFile($path)
     {
-        $currentWorkingDirectory = getcwd();
-        $returned = null;
+        $returned = $this->withBootstrapEnvironment($path, function () use ($path) {
+            $currentWorkingDirectory = getcwd();
 
-        try {
-            $directory = dirname($path);
+            try {
+                $directory = dirname($path);
 
-            if ($currentWorkingDirectory !== false) {
-                chdir($directory);
+                if ($currentWorkingDirectory !== false) {
+                    chdir($directory);
+                }
+
+                return require basename($path);
+            } finally {
+                if ($currentWorkingDirectory !== false) {
+                    chdir($currentWorkingDirectory);
+                }
             }
-
-            $returned = require basename($path);
-        } finally {
-            if ($currentWorkingDirectory !== false) {
-                chdir($currentWorkingDirectory);
-            }
-        }
+        });
 
         if ($this->isSlimApplication($returned)) {
             return $returned;
@@ -172,5 +178,68 @@ class Project
     protected function isAbsolutePath($path)
     {
         return (bool) preg_match('#^(?:[A-Za-z]:[\\\\/]|/)#', $path);
+    }
+
+    protected function withBootstrapEnvironment($path, $callback)
+    {
+        $state = $this->prepareCliServerEnvironment($path);
+
+        try {
+            return call_user_func($callback);
+        } finally {
+            $this->restoreCliServerEnvironment($state);
+        }
+    }
+
+    protected function prepareCliServerEnvironment($path = null)
+    {
+        if (PHP_SAPI !== 'cli') {
+            return null;
+        }
+
+        $defaults = array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'REQUEST_URI' => '/',
+            'SERVER_NAME' => 'localhost',
+            'HTTP_HOST' => 'localhost',
+            'SERVER_PORT' => '80',
+            'SERVER_PROTOCOL' => 'HTTP/1.1',
+            'QUERY_STRING' => '',
+            'HTTPS' => 'off',
+        );
+
+        if (is_string($path) && $path !== '') {
+            $scriptName = '/' . ltrim(str_replace('\\', '/', basename($path)), '/');
+
+            $defaults['SCRIPT_FILENAME'] = $path;
+            $defaults['SCRIPT_NAME'] = $scriptName;
+            $defaults['PHP_SELF'] = $scriptName;
+            $defaults['DOCUMENT_ROOT'] = dirname($path);
+        }
+
+        $added = array();
+
+        foreach ($defaults as $key => $value) {
+            if (array_key_exists($key, $_SERVER)) {
+                continue;
+            }
+
+            $_SERVER[$key] = $value;
+            $added[] = $key;
+        }
+
+        return array('added' => $added);
+    }
+
+    protected function restoreCliServerEnvironment($state)
+    {
+        if (!is_array($state) || !array_key_exists('added', $state)) {
+            return;
+        }
+
+        foreach ($state['added'] as $key) {
+            unset($_SERVER[$key]);
+        }
     }
 }
