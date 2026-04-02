@@ -19,13 +19,7 @@ class RouteListCommand extends AbstractCommand
     {
         $application = $this->requireSlimApplication();
         $router = method_exists($application, 'router') ? $application->router() : null;
-        $routes = array();
-
-        if ($router !== null && method_exists($router, 'getRoutes')) {
-            $routes = $router->getRoutes();
-        } elseif ($router !== null && method_exists($router, 'getNamedRoutes')) {
-            $routes = array_values($router->getNamedRoutes());
-        }
+        $routes = $this->resolveRoutes($router);
 
         if (empty($routes)) {
             $output->writeln('<comment>No routes were registered.</comment>');
@@ -49,6 +43,44 @@ class RouteListCommand extends AbstractCommand
         $table->render();
 
         return 0;
+    }
+
+    protected function resolveRoutes($router)
+    {
+        if ($router === null) {
+            return array();
+        }
+
+        if (method_exists($router, 'getRoutes')) {
+            return $this->normalizeRoutes($router->getRoutes());
+        }
+
+        if (method_exists($router, 'getNamedRoutes')) {
+            return $this->normalizeRoutes($router->getNamedRoutes());
+        }
+
+        return array();
+    }
+
+    protected function normalizeRoutes($routes)
+    {
+        if ($routes === null) {
+            return array();
+        }
+
+        if (is_array($routes)) {
+            return array_values($routes);
+        }
+
+        if ($routes instanceof \Traversable) {
+            return array_values(iterator_to_array($routes));
+        }
+
+        if (is_object($routes)) {
+            return array($routes);
+        }
+
+        return array();
     }
 
     protected function formatMethods($route)
