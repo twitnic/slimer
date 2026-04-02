@@ -1,0 +1,11 @@
+<?php
+
+DummyNamespace
+
+class DummyClass
+{
+    public function __invoke()
+    {
+        // Implement the controller action.
+    }
+}

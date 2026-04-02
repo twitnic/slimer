@@ -1,0 +1,20 @@
+<?php
+
+return array(
+    // Prefer a bootstrap file that creates the app without calling $app->run().
+    'bootstrap' => DummyBootstrapPath,
+
+    'commands' => array(
+        // App\Console\Commands\ExampleCommand::class,
+    ),
+
+    'generators' => array(
+        'commands_path' => 'app/Console/Commands',
+        'command_namespace' => 'App\\Console\\Commands',
+        'controllers_path' => 'app/controllers',
+        'controller_namespace' => 'App\\Controllers',
+        'middleware_path' => 'app/middleware',
+        'middleware_namespace' => 'App\\Middleware',
+        'views_path' => 'app/views',
+    ),
+);

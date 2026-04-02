@@ -1,0 +1,40 @@
+{
+    "name": "twitnic/slimer",
+    "description": "Artisan-style console tooling for Slim Framework 2 applications.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "slim",
+        "slim2",
+        "artisan",
+        "console",
+        "cli"
+    ],
+    "homepage": "https://github.com/twitnic/slimer",
+    "authors": [
+        {
+            "name": "twitnic"
+        }
+    ],
+    "require": {
+        "php": ">=5.6",
+        "slim/slim": "^2.6",
+        "symfony/console": "^3.4 || ^4.4 || ^5.4 || ^6.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Twitnic\\Slimer\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Twitnic\\Slimer\\Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/slimer"
+    ]
+}
