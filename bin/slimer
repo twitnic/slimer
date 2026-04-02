@@ -1,0 +1,26 @@
+#!/usr/bin/env php
+<?php
+
+$autoloaders = array(
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../../autoload.php',
+);
+
+$autoloadFound = false;
+
+foreach ($autoloaders as $autoloader) {
+    if (file_exists($autoloader)) {
+        require $autoloader;
+        $autoloadFound = true;
+        break;
+    }
+}
+
+if (!$autoloadFound) {
+    fwrite(STDERR, "Unable to locate Composer autoload.php.\n");
+    exit(1);
+}
+
+$project = new Twitnic\Slimer\Project(getcwd());
+$application = Twitnic\Slimer\ApplicationFactory::create($project);
+exit($application->run());
